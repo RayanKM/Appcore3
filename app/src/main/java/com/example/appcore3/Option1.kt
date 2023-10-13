@@ -8,11 +8,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
+import androidx.appcompat.widget.SearchView
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.appcore3.databinding.FragmentOption1Binding
 import java.io.BufferedReader
 import java.io.InputStream
 import java.io.InputStreamReader
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class Option1 : Fragment(R.layout.fragment_option1) {
     private var selectedFilterType: String = ""
@@ -51,6 +54,19 @@ class Option1 : Fragment(R.layout.fragment_option1) {
             }
         })
 
+        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                if (newText != null) {
+                    search(newText)
+                }
+                return true
+            }
+        })
+
     }
 
     fun readBooksDataFromCSV(context: Context): List<BooksDataModel> {
@@ -71,12 +87,20 @@ class Option1 : Fragment(R.layout.fragment_option1) {
                 if (tokens != null && tokens.size >= 5) {
                     val title = tokens[1].trim()
                     val location = tokens[2].trim()
-                    val type = tokens[3].trim()
-                    val time = tokens[4].trim()
+                    val timeStr = tokens[4].trim()
+
+                    // Parse date and time from the string
+                    val dateTimeFormat = SimpleDateFormat("MM/dd/yy HH:mm", Locale.getDefault())
+                    val time = dateTimeFormat.parse(timeStr)
+
                     booksDataList.add(BooksDataModel(title, location, time))
                 }
             }
         }
+
+        // Sort the list by date (from old to new)
+        booksDataList.sortBy { it.time }
+
         return booksDataList
     }
     private fun showOptionsMenu(view: View) {
@@ -122,8 +146,19 @@ class Option1 : Fragment(R.layout.fragment_option1) {
             readBooksDataFromCSV(requireContext()).filter { it.title == selectedFilterType }
         }
 
+        // Update the data in the adapter
+        adapter.setItems(filteredList)
 
-        Log.d("qsddqdsq", "$filteredList")
+        // Refresh the RecyclerView
+        adapter.notifyDataSetChanged()
+    }
+    private fun search(search:String) {
+        val filteredList = if (search.isEmpty()) {
+            readBooksDataFromCSV(requireContext()) // Show all items if no filter is selected
+        } else {
+            val filterText = search.toLowerCase() // Convert filter text to lowercase for a case-insensitive search
+            readBooksDataFromCSV(requireContext()).filter { it.title.toLowerCase().contains(filterText) }
+        }
 
         // Update the data in the adapter
         adapter.setItems(filteredList)
@@ -131,4 +166,5 @@ class Option1 : Fragment(R.layout.fragment_option1) {
         // Refresh the RecyclerView
         adapter.notifyDataSetChanged()
     }
+
 }

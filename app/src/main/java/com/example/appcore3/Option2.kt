@@ -13,6 +13,8 @@ import com.example.appcore3.databinding.FragmentOption2Binding
 import java.io.BufferedReader
 import java.io.InputStream
 import java.io.InputStreamReader
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class Option2 : Fragment(R.layout.fragment_option2) {
     private var selectedFilterType: String = ""
@@ -71,12 +73,20 @@ class Option2 : Fragment(R.layout.fragment_option2) {
                 if (tokens != null && tokens.size >= 5) {
                     val title = tokens[1].trim()
                     val location = tokens[2].trim()
-                    val type = tokens[3].trim()
-                    val time = tokens[4].trim()
+                    val timeStr = tokens[4].trim()
+
+                    // Parse date and time from the string
+                    val dateTimeFormat = SimpleDateFormat("MM/dd/yy HH:mm", Locale.getDefault())
+                    val time = dateTimeFormat.parse(timeStr)
+
                     booksDataList.add(BooksDataModel(title, location, time))
                 }
             }
         }
+
+        // Sort the list by date (from old to new)
+        booksDataList.sortBy { it.time }
+
         return booksDataList
     }
     private fun showOptionsMenu(view: View) {

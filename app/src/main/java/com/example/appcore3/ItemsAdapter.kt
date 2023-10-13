@@ -9,6 +9,8 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class ItemsAdapter (private val context: Context, private var items: List<BooksDataModel>) :
     RecyclerView.Adapter<UserViewHolder>() {
@@ -49,8 +51,8 @@ class ItemsAdapter (private val context: Context, private var items: List<BooksD
         val item = items[position]
         holder.Title.text = item.title
         holder.Location.text = item.location
-        holder.Time.text = item.time
-
+        val dateTimeFormat = SimpleDateFormat("dd/MM/yy HH:mm", Locale.getDefault())
+        holder.Time.text = dateTimeFormat.format(item.time)
         if (option == 1){
             // Set the visibility of the icon for all cases
             if (item.location == "Online") {

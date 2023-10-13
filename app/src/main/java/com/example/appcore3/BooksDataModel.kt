@@ -1,7 +1,9 @@
 package com.example.appcore3
 
+import java.util.Date
+
 data class BooksDataModel(
     val title: String,
     val location: String,
-    val time: String,
+    val time: Date?,
 )
